@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
 import Overview from '../views/Overview.vue'
 import Prepare from '../views/Prepare.vue'
+import SerialInterface from '../views/SerialInterface.vue'
 import type { RouteRecordSingleView, Router} from 'vue-router'
 
 const routes: RouteRecordSingleView[] = [
@@ -19,6 +20,11 @@ const routes: RouteRecordSingleView[] = [
     path: '/prepare',
     name: 'Prepare',
     component: Prepare
+  },
+  {
+    path: '/serial',
+    name: 'Serial interface',
+    component: SerialInterface
   }
 ]
 const router: Router = createRouter({
