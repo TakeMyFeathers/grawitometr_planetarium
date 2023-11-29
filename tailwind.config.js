@@ -5,6 +5,9 @@ export default {
     "./src/**/*.{vue,js,ts,jsx,tsx}",
   ],
   theme: {
+    screens:{
+      'lg': '2000px'
+    },
     extend: {
       fontFamily: {
         'bellefair':['Bellefair', 'serif']

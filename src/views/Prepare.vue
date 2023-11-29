@@ -66,7 +66,7 @@ nextTick(() => {
 </script>
 
 <template>
-  <div class="flex flex-col text-center justify-center items-center px-24">
+  <div class="flex flex-col text-center justify-center items-center px-24 overflow-hidden">
     <h1 class="ml4">
       <span class="letters letters-1">Do skoku</span>
       <span class="letters letters-2">Gotowi</span>

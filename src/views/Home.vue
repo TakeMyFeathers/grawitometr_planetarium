@@ -2,22 +2,20 @@
 
 <template>
   <div class="flex flex-col text-center items-center px-24">
-    <div class="home-logo">
+    <div class="home-logo h-[400px] w-[400px] lg:w-[800px] lg:h-[800px]">
       <img class="active-logo" src="/images/active-logo.svg" />
       <img class="inactive-logo" src="/images/idle-logo.svg" />
     </div>
-    <h1 class="text-[150px] uppercase tracking-widest">Grawitometr</h1>
-    <p class="text-[75px]">
-      Stań na wagę, poczekaj na znak i podskocz jak nawyżej potrafisz Zobaczysz
-      jak wysoko wzniósł byś się na innych planetach
+    <h1 class="text-6xl lg:text-[150px] uppercase tracking-widest ">Grawitometr</h1>
+    <p class="leading-normal p-10 text-4xl lg:text-[75px]">
+      Stań na wagę, poczekaj na znak i podskocz jak nawyżej potrafisz. <br/>Zobaczysz jak wysoko wzniósł byś się na innych
+      planetach
     </p>
   </div>
 </template>
 
 <style scoped lang="scss">
 .home-logo {
-  width: 800px;
-  height: 800px;
   margin-bottom: 120px;
   position: relative;
   display: grid;
