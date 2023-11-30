@@ -1,8 +1,3 @@
-<script setup lang="ts">
-import DevNav from "./components/DevNav.vue";
-import Footer from "./components/Footer.vue";
-</script>
-
 <template>
   <router-view v-slot="{ Component }">
     <transition name="scale" mode="out-in">
@@ -10,8 +5,40 @@ import Footer from "./components/Footer.vue";
     </transition>
   </router-view>
 
-  <DevNav/>
+  <Footer />
 </template>
+
+<script setup lang="ts">
+import Footer from "./components/Footer.vue";
+
+import { provide, ref } from "vue";
+import { invoke } from "@tauri-apps/api/tauri";
+import { listen } from "@tauri-apps/api/event";
+
+type SerialReadPayload = Uint32Array
+
+interface ListPortsPayload {
+  ports: string[];
+}
+
+const currValue = ref(0);
+provide('currSerialValue', currValue);
+
+invoke("serial_list_ports").then((list) => {
+  invoke("serial_open", {
+    msg: {
+      port: ((list as ListPortsPayload).ports as string[])[0],
+      baud: 115200,
+      read_timout_ms: 50,
+    },
+  }).then(() => {
+    listen("serial-read", (event) => {
+      const values = event.payload as SerialReadPayload
+      currValue.value = Math.max(...values)
+    });
+  })
+})
+</script>
 
 <style scoped lang="scss">
 .scale-enter-active,
