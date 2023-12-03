@@ -5,15 +5,14 @@
     </transition>
   </router-view>
 
-  <Footer />
+  <DevNav />
 </template>
 
 <script setup lang="ts">
-import Footer from "./components/Footer.vue";
-
 import { provide, ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
 import { listen } from "@tauri-apps/api/event";
+import DevNav from "./components/DevNav.vue";
 
 type SerialReadPayload = Uint32Array
 
@@ -52,3 +51,4 @@ invoke("serial_list_ports").then((list) => {
   transform: scale(0.9);
 }
 </style>
+ 
