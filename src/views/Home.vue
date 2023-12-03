@@ -1,10 +1,4 @@
 <script setup lang="ts">
-import { Ref, inject, watch } from 'vue';
-
-const serialValue: number = inject('currSerialValue', 0)
-watch(serialValue, (newValue, _) => {
-  console.log(newValue)
-})
 </script>
 
 <template>
