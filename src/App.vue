@@ -4,12 +4,20 @@
       <component :is="Component" />
     </transition>
   </router-view>
-
   <DevNav />
+
 </template>
 
 <script setup lang="ts">
 import DevNav from "./components/DevNav.vue";
+import { listen} from '@tauri-apps/api/event';
+import useSerialStore from './stores/serial';
+
+listen('serial-read', (event) => {
+  const serial = useSerialStore();
+  serial.value = Math.max(...(event.payload as Uint32Array));
+})
+
 </script>
 
 <style scoped lang="scss">

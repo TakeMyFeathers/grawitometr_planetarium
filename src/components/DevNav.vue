@@ -3,7 +3,7 @@
     <router-link to="/">Home</router-link>
     <router-link to="/prepare">Prepare</router-link>
     <router-link to="/overview">Overview</router-link>
-    <router-link to="/serial">Serial interface</router-link>
+    <router-link to="/setup">Setup</router-link>
   </div>
 </template>
 
