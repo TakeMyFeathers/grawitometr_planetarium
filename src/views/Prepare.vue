@@ -79,6 +79,7 @@ nextTick(() => {
 .ml4 {
   position: relative;
   display: grid;
+  align-items: center;
   font-size: 220px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
