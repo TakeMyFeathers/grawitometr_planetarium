@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import anime from "animejs";
-import { nextTick } from "vue";
+import { onMounted } from "vue";
+import useSerialStore from '../stores/serial';
+import useDurationStore from '../stores/duration';
+import router from "../router";
+
+const MIN_WEIGHT = 10;
+
+const duration = useDurationStore()
+let animation_completed = false;
+let jumpStartTime = 0;
+let jumpFinishTime = 0;
 
 const ml4 = {
   opacityIn: [0, 1],
@@ -11,58 +21,67 @@ const ml4 = {
   delay: 500,
 };
 
-nextTick(() => {
-  anime
-    .timeline({ loop: true })
-    .add({
-      targets: ".ml4 .letters-1",
-      opacity: ml4.opacityIn,
-      scale: ml4.scaleIn,
-      duration: ml4.durationIn,
-    })
-    .add({
-      targets: ".ml4 .letters-1",
-      opacity: 0,
-      scale: ml4.scaleOut,
-      duration: ml4.durationOut,
-      easing: "easeInExpo",
-      delay: ml4.delay,
-    })
-    .add({
-      targets: ".ml4 .letters-2",
-      opacity: ml4.opacityIn,
-      scale: ml4.scaleIn,
-      duration: ml4.durationIn,
-    })
-    .add({
-      targets: ".ml4 .letters-2",
-      opacity: 0,
-      scale: ml4.scaleOut,
-      duration: ml4.durationOut,
-      easing: "easeInExpo",
-      delay: ml4.delay,
-    })
-    .add({
-      targets: ".ml4 .letters-3",
-      opacity: ml4.opacityIn,
-      scale: ml4.scaleIn,
-      duration: ml4.durationIn,
-    })
-    .add({
-      targets: ".ml4 .letters-3",
-      opacity: 0,
-      scale: ml4.scaleOut,
-      duration: ml4.durationOut,
-      easing: "easeInExpo",
-      delay: ml4.delay,
-    })
-    .add({
-      targets: ".ml4",
-      opacity: 0,
-      duration: 500,
-      delay: 500,
-    });
+const serial = useSerialStore();
+
+
+serial.$subscribe((_mutation, state) => {
+  if (!animation_completed) return
+  if (state.value < MIN_WEIGHT && !jumpStartTime) {
+    jumpStartTime = Date.now()
+  }
+
+  if (state.value > MIN_WEIGHT && jumpStartTime && !jumpFinishTime) {
+    jumpFinishTime = Date.now()
+  }
+
+  if (!jumpFinishTime || !jumpStartTime) return
+  duration.value = jumpFinishTime - jumpStartTime
+  router.push({ path: '/overview' })
+})
+
+const animation = anime.timeline({
+  complete: () => {
+    animation_completed = true
+  }
 });
+
+onMounted(() => {
+  animation.add({
+    targets: ".ml4 .letters-1",
+    opacity: ml4.opacityIn,
+    scale: ml4.scaleIn,
+    duration: ml4.durationIn,
+  })
+    .add({
+      targets: ".ml4 .letters-1",
+      opacity: 0,
+      scale: ml4.scaleOut,
+      duration: ml4.durationOut,
+      easing: "easeInExpo",
+      delay: ml4.delay,
+    })
+    .add({
+      targets: ".ml4 .letters-2",
+      opacity: ml4.opacityIn,
+      scale: ml4.scaleIn,
+      duration: ml4.durationIn,
+    })
+    .add({
+      targets: ".ml4 .letters-2",
+      opacity: 0,
+      scale: ml4.scaleOut,
+      duration: ml4.durationOut,
+      easing: "easeInExpo",
+      delay: ml4.delay,
+    })
+    .add({
+      targets: ".ml4 .letters-3",
+      opacity: ml4.opacityIn,
+      scale: ml4.scaleIn,
+      duration: ml4.durationIn,
+    });
+  animation.restart()
+})
 </script>
 
 <template>

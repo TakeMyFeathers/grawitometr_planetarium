@@ -28,7 +28,7 @@ serial.$subscribe((_mutation, state) => {
     clearTimeout(timer)
     active.value = false
   }
-}, { detached: true })
+})
 </script>
 
 <template>
