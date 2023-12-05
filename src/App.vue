@@ -4,14 +4,13 @@
       <component :is="Component" />
     </transition>
   </router-view>
-
 </template>
 
 <script setup lang="ts">
-import { listen} from '@tauri-apps/api/event';
-import useSerialStore from './stores/serial';
+import { listen } from "@tauri-apps/api/event";
+import useSerialStore from "./stores/serial";
 
-listen('serial-read', (event) => {
+listen("serial-read", (event) => {
   const serial = useSerialStore();
 
   let prev_state = serial.value;
@@ -19,16 +18,15 @@ listen('serial-read', (event) => {
   serial.value = Math.max(...(event.payload as Uint32Array));
 
   //Jeżeli z jakiegoś błędu będzie wartość infinity to sprawdzaj póki jej nie będzie
-  if(serial.value == Number.POSITIVE_INFINITY || serial.value == Number.NEGATIVE_INFINITY)
-  {
-    serial.value = prev_state
+  if (
+    serial.value == Number.POSITIVE_INFINITY ||
+    serial.value == Number.NEGATIVE_INFINITY
+  ) {
+    serial.value = prev_state;
   }
 
   event.payload = [];
-
-
-})
-
+});
 </script>
 
 <style scoped lang="scss">
@@ -43,4 +41,3 @@ listen('serial-read', (event) => {
   transform: scale(0.9);
 }
 </style>
- 

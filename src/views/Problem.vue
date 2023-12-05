@@ -3,6 +3,6 @@
 </template>
 
 <script setup lang="ts">
-import useErrorStore from '../stores/error'
-const error = useErrorStore()
+import useErrorStore from "../stores/error";
+const error = useErrorStore();
 </script>

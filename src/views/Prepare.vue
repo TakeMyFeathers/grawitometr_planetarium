@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import anime from "animejs";
 import { onMounted } from "vue";
-import useSerialStore from '../stores/serial';
-import useDurationStore from '../stores/duration';
+import useSerialStore from "../stores/serial";
+import useDurationStore from "../stores/duration";
 import router from "../router";
 
 const MIN_WEIGHT = 20;
 
-const duration = useDurationStore()
+const duration = useDurationStore();
 let animation_completed = false;
 let jumpStartTime = 0;
 let jumpFinishTime = 0;
@@ -23,47 +23,45 @@ const ml4 = {
 
 const serial = useSerialStore();
 
-
 serial.$subscribe((_mutation, state) => {
   if (!animation_completed) return;
   if (state.value < MIN_WEIGHT && !jumpStartTime) {
-    if(state.value < MIN_WEIGHT/2)
-      jumpStartTime = Date.now();
+    if (state.value < MIN_WEIGHT / 2) jumpStartTime = Date.now();
+  } else if (
+    (state.value > MIN_WEIGHT && jumpStartTime && !jumpFinishTime) ||
+    (state.value > MIN_WEIGHT &&
+      jumpFinishTime == jumpStartTime &&
+      jumpStartTime)
+  ) {
+    jumpFinishTime = Date.now();
   }
-
-  else if ((state.value > MIN_WEIGHT && jumpStartTime && !jumpFinishTime) ||
-   (state.value > MIN_WEIGHT && jumpFinishTime == jumpStartTime && jumpStartTime)) {
-    jumpFinishTime = Date.now()
-  }
-  if(jumpStartTime == jumpFinishTime || (jumpFinishTime - jumpStartTime <=50) )
-  {
+  if (jumpStartTime == jumpFinishTime || jumpFinishTime - jumpStartTime <= 50) {
     jumpFinishTime = 0;
   }
 
-
   if (!jumpFinishTime || !jumpStartTime) return;
-  else{
-    duration.value = jumpFinishTime - jumpStartTime
+  else {
+    duration.value = jumpFinishTime - jumpStartTime;
     console.log("Wartość Duration:");
     console.log(duration.value);
-    router.push({ path: '/overview' })
-  }
-
-})
-
-const animation = anime.timeline({
-  complete: () => {
-    animation_completed = true
+    router.push({ path: "/overview" });
   }
 });
 
+const animation = anime.timeline({
+  complete: () => {
+    animation_completed = true;
+  },
+});
+
 onMounted(() => {
-  animation.add({
-    targets: ".ml4 .letters-1",
-    opacity: ml4.opacityIn,
-    scale: ml4.scaleIn,
-    duration: ml4.durationIn,
-  })
+  animation
+    .add({
+      targets: ".ml4 .letters-1",
+      opacity: ml4.opacityIn,
+      scale: ml4.scaleIn,
+      duration: ml4.durationIn,
+    })
     .add({
       targets: ".ml4 .letters-1",
       opacity: 0,
@@ -92,12 +90,14 @@ onMounted(() => {
       scale: ml4.scaleIn,
       duration: ml4.durationIn,
     });
-  animation.restart()
-})
+  animation.restart();
+});
 </script>
 
 <template>
-  <div class="flex flex-col text-center justify-center items-center px-24 overflow-hidden">
+  <div
+    class="flex flex-col text-center justify-center items-center px-24 overflow-hidden"
+  >
     <h1 class="ml4">
       <span class="letters letters-1">Przygotuj się</span>
       <span class="letters letters-2">Gotowy?</span>
