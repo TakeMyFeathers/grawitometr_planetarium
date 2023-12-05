@@ -1,39 +1,62 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import router from "../router";
 import useSerialStore from "../stores/serial";
+import anime from "animejs";
 let active = ref(false);
 
 const MIN_WEIGHT = 20;
+const LOADING_DURATION = 5000;
 
-let timer: number;
+let loadingTimer: number;
+let resetTimer: number;
+
 const serial = useSerialStore();
 
-let dateTime1: number;
-let dateTime2: number;
+function nextStage() {
+  router.push({ path: "/prepare" });
+  active.value = false;
+}
 
-if (serial.value > MIN_WEIGHT) {
+const animation = anime({
+  targets: ".active-logo",
+  clipPath: ["inset(0)", "inset(100% 0 0 0)"],
+  easing: "linear",
+  direction: "reverse",
+  loop: true,
+  duration: LOADING_DURATION,
+  autoplay: false,
+});
+
+// onMounted(() => {
+//   animation.play();
+// });
+
+if (serial.value > MIN_WEIGHT && !active.value) {
   active.value = true;
-  timer = setTimeout(() => {
-    router.push({ path: "/prepare" });
-  }, 5000);
+
+  loadingTimer = setTimeout(() => {
+    nextStage();
+  }, LOADING_DURATION);
 }
 
 serial.$subscribe((_mutation, state) => {
-  if (state.value > MIN_WEIGHT) {
+  const isWeightSufficient = state.value > MIN_WEIGHT;
+  const isActive = active.value;
+
+  if (!isActive && isWeightSufficient) {
     active.value = true;
-    dateTime1 = Date.now();
-    timer = setTimeout(() => {
-      router.push({ path: "/prepare" });
-    }, 5000);
+
+    loadingTimer = setTimeout(() => {
+      nextStage();
+    }, LOADING_DURATION);
   }
 
-  if (state.value < MIN_WEIGHT) {
-    dateTime2 = Date.now();
-    if (dateTime2 - dateTime1 >= 1000) {
-      clearTimeout(timer);
-      active.value = false;
-    }
+  if (isActive && !isWeightSufficient) {
+    // resetTimer = setTimeout(() => {
+    clearTimeout(loadingTimer);
+    active.value = false;
+    // }, 1000);
   }
 });
 </script>
