@@ -5,7 +5,7 @@ import useSerialStore from '../stores/serial';
 import useDurationStore from '../stores/duration';
 import router from "../router";
 
-const MIN_WEIGHT = 10;
+const MIN_WEIGHT = 20;
 
 const duration = useDurationStore()
 let animation_completed = false;
@@ -25,18 +25,30 @@ const serial = useSerialStore();
 
 
 serial.$subscribe((_mutation, state) => {
-  if (!animation_completed) return
+  if (!animation_completed) return;
   if (state.value < MIN_WEIGHT && !jumpStartTime) {
-    jumpStartTime = Date.now()
+    if(state.value < MIN_WEIGHT/2)
+      jumpStartTime = Date.now();
   }
 
-  if (state.value > MIN_WEIGHT && jumpStartTime && !jumpFinishTime) {
+  else if ((state.value > MIN_WEIGHT && jumpStartTime && !jumpFinishTime) ||
+   (state.value > MIN_WEIGHT && jumpFinishTime == jumpStartTime && jumpStartTime)) {
     jumpFinishTime = Date.now()
   }
+  if(jumpStartTime == jumpFinishTime || (jumpFinishTime - jumpStartTime <=50) )
+  {
+    jumpFinishTime = 0;
+  }
 
-  if (!jumpFinishTime || !jumpStartTime) return
-  duration.value = jumpFinishTime - jumpStartTime
-  router.push({ path: '/overview' })
+
+  if (!jumpFinishTime || !jumpStartTime) return;
+  else{
+    duration.value = jumpFinishTime - jumpStartTime
+    console.log("Wartość Duration:");
+    console.log(duration.value);
+    router.push({ path: '/overview' })
+  }
+
 })
 
 const animation = anime.timeline({
@@ -87,8 +99,8 @@ onMounted(() => {
 <template>
   <div class="flex flex-col text-center justify-center items-center px-24 overflow-hidden">
     <h1 class="ml4">
-      <span class="letters letters-1">Do skoku</span>
-      <span class="letters letters-2">Gotowi</span>
+      <span class="letters letters-1">Przygotuj się</span>
+      <span class="letters letters-2">Gotowy?</span>
       <span class="letters letters-3">Skacz!</span>
     </h1>
   </div>
