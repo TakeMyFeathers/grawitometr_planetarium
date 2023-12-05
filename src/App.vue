@@ -4,18 +4,29 @@
       <component :is="Component" />
     </transition>
   </router-view>
-  <DevNav />
 
 </template>
 
 <script setup lang="ts">
-import DevNav from "./components/DevNav.vue";
 import { listen} from '@tauri-apps/api/event';
 import useSerialStore from './stores/serial';
 
 listen('serial-read', (event) => {
   const serial = useSerialStore();
+
+  let prev_state = serial.value;
+
   serial.value = Math.max(...(event.payload as Uint32Array));
+
+  //Jeżeli z jakiegoś błędu będzie wartość infinity to sprawdzaj póki jej nie będzie
+  if(serial.value == Number.POSITIVE_INFINITY || serial.value == Number.NEGATIVE_INFINITY)
+  {
+    serial.value = prev_state
+  }
+
+  event.payload = [];
+
+
 })
 
 </script>

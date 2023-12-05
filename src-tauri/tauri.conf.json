@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "Grawitometr",
-    "version": "0.0.0"
+    "version": "0.0.1"
   },
   "tauri": {
     "allowlist": {
@@ -20,7 +20,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri.dev",
+      "identifier": "pl.zseitolsztyn.grawitometr",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -34,11 +34,11 @@
     },
     "windows": [
       {
-        "fullscreen": true,
+        "fullscreen": false,
         "resizable": true,
-        "title": "grawitometr",
-        "width": 800,
-        "height": 600
+        "title": "Grawitometr",
+        "width": 2160,
+        "height": 3840
       }
     ]
   }

@@ -4,12 +4,15 @@ import router from '../router';
 import useSerialStore from '../stores/serial';
 let active = ref(false);
 
-const MIN_WEIGHT = 10;
+const MIN_WEIGHT = 20;
 
 let timer: number;
 const serial = useSerialStore();
 
-if (serial.value > MIN_WEIGHT && active.value === false) {
+let dateTime1: number;
+let dateTime2: number;
+
+if (serial.value > MIN_WEIGHT) {
   active.value = true
   timer = setTimeout(() => {
     router.push({ path: '/prepare' })
@@ -17,16 +20,22 @@ if (serial.value > MIN_WEIGHT && active.value === false) {
 }
 
 serial.$subscribe((_mutation, state) => {
-  if (state.value > MIN_WEIGHT && active.value === false) {
-    active.value = true
+  if (state.value > MIN_WEIGHT ) {
+    active.value = true;
+    dateTime1 = Date.now();
     timer = setTimeout(() => {
       router.push({ path: '/prepare' })
-    }, 5000)
+    }, 5000);
   }
 
-  if (state.value < MIN_WEIGHT) {
-    clearTimeout(timer)
-    active.value = false
+  if (state.value < MIN_WEIGHT ) {
+    dateTime2 = Date.now();
+    if(dateTime2 - dateTime1 >= 1000)
+    {
+      clearTimeout(timer)
+      active.value = false
+    }
+      
   }
 })
 </script>
@@ -41,7 +50,7 @@ serial.$subscribe((_mutation, state) => {
     <p class="leading-normal p-10 text-4xl lg:text-[75px]">
       Stań na wagę, poczekaj na znak i podskocz jak nawyżej potrafisz. <br />Zobaczysz jak wysoko wzniósł byś się na
       innych
-      planetach
+      planetach 
     </p>
   </div>
 </template>
