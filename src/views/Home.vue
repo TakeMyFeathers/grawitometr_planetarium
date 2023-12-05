@@ -1,74 +1,75 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted } from "vue";
 import router from "../router";
 import useSerialStore from "../stores/serial";
 import anime from "animejs";
-let active = ref(false);
 
 const MIN_WEIGHT = 20;
 const LOADING_DURATION = 5000;
+const RESET_DURATION = 1000;
 
-let loadingTimer: number;
-let resetTimer: number;
+const resetTimer = {
+  active: false,
+  timer: 0,
+  reset: function () {
+    if (!this.active) return;
+    clearTimeout(this.timer);
+    this.active = false;
+  },
+  start: function (cb: Function, duration: number) {
+    if (this.active) return;
+    this.timer = setTimeout(cb, duration);
+    this.active = true;
+  },
+};
 
 const serial = useSerialStore();
 
 function nextStage() {
   router.push({ path: "/prepare" });
-  active.value = false;
 }
 
-const animation = anime({
-  targets: ".active-logo",
-  clipPath: ["inset(0)", "inset(100% 0 0 0)"],
-  easing: "linear",
-  direction: "reverse",
-  loop: true,
-  duration: LOADING_DURATION,
-  autoplay: false,
-});
-
-// onMounted(() => {
-//   animation.play();
-// });
-
-if (serial.value > MIN_WEIGHT && !active.value) {
-  active.value = true;
-
-  loadingTimer = setTimeout(() => {
-    nextStage();
-  }, LOADING_DURATION);
-}
-
-serial.$subscribe((_mutation, state) => {
-  const isWeightSufficient = state.value > MIN_WEIGHT;
-  const isActive = active.value;
-
-  if (!isActive && isWeightSufficient) {
-    active.value = true;
-
-    loadingTimer = setTimeout(() => {
+onMounted(() => {
+  const animation = anime({
+    targets: ".active-logo",
+    clipPath: ["inset(0)", "inset(100% 0 0 0)"],
+    easing: "linear",
+    direction: "reverse",
+    duration: LOADING_DURATION,
+    autoplay: false,
+    complete: () => {
       nextStage();
-    }, LOADING_DURATION);
+    },
+  });
+
+  if (serial.value > MIN_WEIGHT) {
+    animation.play();
   }
 
-  if (isActive && !isWeightSufficient) {
-    // resetTimer = setTimeout(() => {
-    clearTimeout(loadingTimer);
-    active.value = false;
-    // }, 1000);
-  }
+  serial.$subscribe((_, state) => {
+    const isWeightSufficient = state.value > MIN_WEIGHT;
+
+    if (!isWeightSufficient) {
+      animation.pause();
+      resetTimer.start(() => {
+        animation.restart();
+        animation.pause();
+      }, RESET_DURATION);
+      return;
+    }
+
+    resetTimer.reset();
+    animation.play();
+  });
 });
 </script>
 
 <template>
   <div class="flex flex-col text-center items-center px-24">
-    <div class="home-logo h-[400px] w-[400px] lg:w-[800px] lg:h-[800px]">
-      <img
-        :class="{ loading: active }"
-        class="active-logo"
-        src="/images/active-logo.svg"
-      />
+    <div
+      class="home-logo mb-[120px] relative grid h-[400px] w-[400px] lg:w-[800px] lg:h-[800px]"
+    >
+      <img class="active-logo" src="/images/active-logo.svg" />
       <img class="inactive-logo" src="/images/idle-logo.svg" />
     </div>
     <h1 class="text-6xl lg:text-[150px] uppercase tracking-widest">
@@ -83,10 +84,6 @@ serial.$subscribe((_mutation, state) => {
 
 <style scoped lang="scss">
 .home-logo {
-  margin-bottom: 120px;
-  position: relative;
-  display: grid;
-
   img {
     grid-area: 1/2;
     width: 100%;
@@ -94,20 +91,6 @@ serial.$subscribe((_mutation, state) => {
   }
 
   .active-logo {
-    clip-path: inset(100% 0 0 0);
-  }
-}
-
-.loading {
-  animation: reveal 5s linear infinite reverse;
-}
-
-@keyframes reveal {
-  0% {
-    clip-path: inset(0);
-  }
-
-  100% {
     clip-path: inset(100% 0 0 0);
   }
 }
