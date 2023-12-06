@@ -62,6 +62,8 @@ impl Serial {
                     let numbers: Vec<u32> =
                         string_buf.lines().flat_map(|s| s.parse::<u32>()).collect();
 
+                    // App crashes otherwise
+                    sleep(std::time::Duration::from_micros(1));
                     cb(numbers);
                 }
                 Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => (),
