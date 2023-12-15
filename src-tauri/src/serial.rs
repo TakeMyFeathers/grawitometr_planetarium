@@ -1,5 +1,6 @@
 use std::str;
 use std::sync::{Arc, Mutex};
+use std::thread::sleep;
 
 use serial2::{self, SerialPort};
 
@@ -61,7 +62,7 @@ impl Serial {
 
                     let numbers: Vec<u32> =
                         string_buf.lines().flat_map(|s| s.parse::<u32>()).collect();
-
+                    sleep(std::time::Duration::from_micros(1));
                     cb(numbers);
                 }
                 Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => (),

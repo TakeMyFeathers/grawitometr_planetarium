@@ -1,9 +1,9 @@
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia";
 
-const useSerialStore = defineStore('serial', {
+const useSerialStore = defineStore("serial", {
   state: () => {
-    return { value: 0 }
-  }
-})
+    return { value: 0 };
+  },
+});
 
 export default useSerialStore;

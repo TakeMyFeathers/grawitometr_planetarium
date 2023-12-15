@@ -3,32 +3,94 @@
     <transition name="scale" mode="out-in">
       <component :is="Component" />
     </transition>
+    <FooterVue/>
   </router-view>
-
+  
 </template>
 
 <script setup lang="ts">
-import { listen} from '@tauri-apps/api/event';
-import useSerialStore from './stores/serial';
+import { listen } from "@tauri-apps/api/event";
+import useSerialStore from "./stores/serial";
+import FooterVue from "./components/Footer.vue"
+// import { readTextFile, BaseDirectory, exists } from "@tauri-apps/api/fs";
+// import router from "./router";
+// import { invoke } from "@tauri-apps/api/tauri";
 
-listen('serial-read', (event) => {
+// const CONFIG_FILE = "config.json";
+
+// exists(CONFIG_FILE, { dir: BaseDirectory.AppConfig }).then((isAvailable) => {
+//   if (!isAvailable) {
+//     console.info("Config file not found");
+//     console.info("Redirecting to the setup. Try to specify config manually.");
+//     router.replace({ path: "/setup" });
+//     return;
+//   }
+
+//   readTextFile(CONFIG_FILE, { dir: BaseDirectory.AppConfig }).then(
+//     (content) => {
+//       const config = JSON.parse(content);
+//       const isConfigValid =
+//         "port" in config &&
+//         typeof config.port === "string" &&
+//         "baud" in config &&
+//         typeof config.baud === "number";
+
+//       if (isConfigValid) {
+//         invoke("serial_open", {
+//           msg: {
+//             port: config.port,
+//             baud: config.baud,
+//             read_timout_ms: 100,
+//           },
+//         }).then((payload) => {
+//           if (typeof payload === "string") {
+//             if (payload === "Port not found") {
+//               console.error(`Specified port (${config.port}) not found`);
+//               console.info(
+//                 "Redirecting to the setup. Try to specify config manually.",
+//               );
+//               router.replace({ path: "/setup" });
+//               return;
+//             }
+//           }
+//         });
+//       } else {
+//         console.error("Config file is invalid");
+//         console.info(
+//           "Redirecting to the setup. Try to specify config manually.",
+//         );
+//         router.replace({ path: "/setup" });
+//       }
+//     },
+//   );
+// });
+
+
+
+listen("serial-read", (event) => {
   const serial = useSerialStore();
 
-  let prev_state = serial.value;
+  if (
+    !Array.isArray(event.payload) ||
+    !event.payload.some((v) => typeof v === "number")
+  ) {
+    return;
+  }
+  if((event.payload as number[]).length>3){
+    const reading = Math.max(...(event.payload as number[]));
+    
+  
 
-  serial.value = Math.max(...(event.payload as Uint32Array));
+  const isReadingInvalid =
+    reading == Number.POSITIVE_INFINITY || reading == Number.NEGATIVE_INFINITY || reading < 0;
 
-  //Jeżeli z jakiegoś błędu będzie wartość infinity to sprawdzaj póki jej nie będzie
-  if(serial.value == Number.POSITIVE_INFINITY || serial.value == Number.NEGATIVE_INFINITY)
-  {
-    serial.value = prev_state
+  if (isReadingInvalid) return;
+  serial.value = reading - 15;
+  // console.log(serial.value);
+  
   }
 
-  event.payload = [];
-
-
-})
-
+});
 </script>
 
 <style scoped lang="scss">
@@ -43,4 +105,3 @@ listen('serial-read', (event) => {
   transform: scale(0.9);
 }
 </style>
- 

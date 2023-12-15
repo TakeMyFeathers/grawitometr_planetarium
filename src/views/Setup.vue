@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <div class="grid grid-cols-2 items-center">
       <form class="row" @submit.prevent="listPorts">
         <button type="submit">List Ports</button>
@@ -9,7 +8,11 @@
     </div>
 
     <form class="row" @submit.prevent="openPort">
-      <input id="listPorts-input" v-model="portName" placeholder="Port name..." />
+      <input
+        id="listPorts-input"
+        v-model="portName"
+        placeholder="Port name..."
+      />
       <input id="listPorts-input" v-model="baud" placeholder="115200" />
       <button type="submit">Open</button>
     </form>
@@ -21,7 +24,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
 import { invoke } from "@tauri-apps/api/tauri";
-import { ListPortsPayload } from '../types/serial';
+import { ListPortsPayload } from "../types/serial";
 import router from "../router";
 
 const availablePorts: ListPortsPayload = reactive({ ports: [] });
@@ -30,19 +33,47 @@ const portName = ref("");
 const baud = ref("");
 const readData = ref();
 
+
+
 let portsMsg = computed(() => {
-  return availablePorts.ports.join(',');
-})
+  return availablePorts.ports.join(",");
+});
+
+
+async function runScale()  {
+
+  if(availablePorts.ports){
+    openPortMsg.value = await invoke("serial_open", {
+    msg: {
+      port: "COM3",
+      baud: parseInt("115200"),
+      read_timout_ms: 100,
+    },
+  });
+  router.push({ path: "/" });
+    
+  }
+
+}
 
 async function listPorts() {
-  const payload = (await invoke("serial_list_ports") as ListPortsPayload);
+  const payload = (await invoke("serial_list_ports")) as ListPortsPayload;
   availablePorts.ports = payload.ports;
+
 }
 
 async function openPort() {
-  openPortMsg.value = await invoke("serial_open", { msg: { port: portName.value, baud: parseInt(baud.value), read_timout_ms: 100 } });
-  router.push({path:'/'})
+  openPortMsg.value = await invoke("serial_open", {
+    msg: {
+      port: portName.value,
+      baud: parseInt(baud.value),
+      read_timout_ms: 100,
+    },
+  });
+  router.push({ path: "/" });
 }
+listPorts();
+runScale();
 </script>
 
 <style scoped lang="scss">
